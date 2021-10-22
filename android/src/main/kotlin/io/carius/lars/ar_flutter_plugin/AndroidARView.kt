@@ -57,6 +57,7 @@ internal class AndroidARView(
     private var worldOriginNode = Node()
     // Model builder
     private var modelBuilder = ArModelBuilder()
+
     // Cloud anchor handler
 //    private lateinit var cloudAnchorHandler: CloudAnchorHandler
 
@@ -78,7 +79,7 @@ internal class AndroidARView(
                             var handlerThread = HandlerThread("PixelCopier");
                             handlerThread.start();
                             // Make the request to copy.
-                            PixelCopy.request(arSceneView, bitmap, { copyResult:Int ->
+                            PixelCopy.request(arSceneView, bitmap, { copyResult: Int ->
                                 Log.d(TAG, "PIXELCOPY DONE")
                                 if (copyResult == PixelCopy.SUCCESS) {
                                     try {
@@ -114,8 +115,8 @@ internal class AndroidARView(
                         }
                         "addNode" -> {
                             val dict_node: HashMap<String, Any>? = call.arguments as? HashMap<String, Any>
-                            dict_node?.let{
-                                addNode(it).thenAccept{status: Boolean ->
+                            dict_node?.let {
+                                addNode(it).thenAccept { status: Boolean ->
                                     result.success(status)
                                 }.exceptionally { throwable ->
                                     result.error(null, throwable.message, throwable.stackTrace)
@@ -127,7 +128,7 @@ internal class AndroidARView(
                             val dict_node: HashMap<String, Any>? = call.argument<HashMap<String, Any>>("node")
                             val dict_anchor: HashMap<String, Any>? = call.argument<HashMap<String, Any>>("anchor")
                             if (dict_node != null && dict_anchor != null) {
-                                addNode(dict_node, dict_anchor).thenAccept{status: Boolean ->
+                                addNode(dict_node, dict_anchor).thenAccept { status: Boolean ->
                                     result.success(status)
                                 }.exceptionally { throwable ->
                                     result.error(null, throwable.message, throwable.stackTrace)
@@ -140,9 +141,9 @@ internal class AndroidARView(
                         }
                         "removeNode" -> {
                             val nodeName: String? = call.argument<String>("name")
-                            nodeName?.let{
+                            nodeName?.let {
                                 val node = arSceneView.scene.findByName(nodeName)
-                                node?.let{
+                                node?.let {
                                     arSceneView.scene.removeChild(node)
                                     result.success(null)
                                 }
@@ -151,8 +152,8 @@ internal class AndroidARView(
                         "transformationChanged" -> {
                             val nodeName: String? = call.argument<String>("name")
                             val newTransformation: ArrayList<Double>? = call.argument<ArrayList<Double>>("transformation")
-                            nodeName?.let{ name ->
-                                newTransformation?.let{ transform ->
+                            nodeName?.let { name ->
+                                newTransformation?.let { transform ->
                                     transformNode(name, transform)
                                     result.success(null)
                                 }
@@ -176,12 +177,12 @@ internal class AndroidARView(
                     when (call.method) {
                         "addAnchor" -> {
                             val anchorType: Int? = call.argument<Int>("type")
-                            if (anchorType != null){
-                                when(anchorType) {
+                            if (anchorType != null) {
+                                when (anchorType) {
                                     0 -> { // Plane Anchor
                                         val transform: ArrayList<Double>? = call.argument<ArrayList<Double>>("transformation")
                                         val name: String? = call.argument<String>("name")
-                                        if ( name != null && transform != null){
+                                        if (name != null && transform != null) {
                                             result.success(addPlaneAnchor(transform, name))
                                         } else {
                                             result.success(false)
@@ -196,7 +197,7 @@ internal class AndroidARView(
                         }
                         "removeAnchor" -> {
                             val anchorName: String? = call.argument<String>("name")
-                            anchorName?.let{ name ->
+                            anchorName?.let { name ->
                                 removeAnchor(name)
                             }
                         }
@@ -344,9 +345,9 @@ internal class AndroidARView(
             } catch (ex: UnavailableUserDeclinedInstallationException) {
                 // Display an appropriate message to the user zand return gracefully.
                 Toast.makeText(
-                                activity,
-                                "TODO: handle exception " + ex.localizedMessage,
-                                Toast.LENGTH_LONG)
+                        activity,
+                        "TODO: handle exception " + ex.localizedMessage,
+                        Toast.LENGTH_LONG)
                         .show()
                 return
             } catch (ex: UnavailableArcoreNotInstalledException) {
@@ -521,7 +522,7 @@ internal class AndroidARView(
 
                     // Add object to scene
                     modelBuilder.makeNodeFromGltf(viewContext, dict_node["name"] as String, key, dict_node["transformation"] as ArrayList<Double>)
-                            .thenAccept{node ->
+                            .thenAccept { node ->
                                 val anchorName: String? = dict_anchor?.get("name") as? String
                                 val anchorType: Int? = dict_anchor?.get("type") as? Int
                                 if (anchorName != null && anchorType != null) {
@@ -539,7 +540,7 @@ internal class AndroidARView(
                             .exceptionally { throwable ->
                                 // Pass error to session manager (this has to be done on the main thread if this activity)
                                 val mainHandler = Handler(viewContext.mainLooper)
-                                val runnable = Runnable {sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" +  dict_node["uri"] as String)) }
+                                val runnable = Runnable { sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" + dict_node["uri"] as String)) }
                                 mainHandler.post(runnable)
                                 completableFutureSuccess.completeExceptionally(throwable)
                                 null // return null because java expects void return (in java, void has no instance, whereas in Kotlin, this closure returns a Unit which has one instance)
@@ -547,7 +548,7 @@ internal class AndroidARView(
                 }
                 1 -> { // GLB Model from the web
                     modelBuilder.makeNodeFromGlb(viewContext, dict_node["name"] as String, dict_node["uri"] as String, dict_node["transformation"] as ArrayList<Double>)
-                            .thenAccept{node ->
+                            .thenAccept { node ->
                                 val anchorName: String? = dict_anchor?.get("name") as? String
                                 val anchorType: Int? = dict_anchor?.get("type") as? Int
                                 if (anchorName != null && anchorType != null) {
@@ -565,7 +566,7 @@ internal class AndroidARView(
                             .exceptionally { throwable ->
                                 // Pass error to session manager (this has to be done on the main thread if this activity)
                                 val mainHandler = Handler(viewContext.mainLooper)
-                                val runnable = Runnable {sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" +  dict_node["uri"] as String)) }
+                                val runnable = Runnable { sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" + dict_node["uri"] as String)) }
                                 mainHandler.post(runnable)
                                 completableFutureSuccess.completeExceptionally(throwable)
                                 null // return null because java expects void return (in java, void has no instance, whereas in Kotlin, this closure returns a Unit which has one instance)
@@ -576,38 +577,7 @@ internal class AndroidARView(
                     val assetPath = documentsPath + "/app_flutter/" + dict_node["uri"] as String
 
                     modelBuilder.makeNodeFromGlb(viewContext, dict_node["name"] as String, assetPath as String, dict_node["transformation"] as ArrayList<Double>) //
-                    .thenAccept{node ->
-                        val anchorName: String? = dict_anchor?.get("name") as? String
-                        val anchorType: Int? = dict_anchor?.get("type") as? Int
-                        if (anchorName != null && anchorType != null) {
-                            val anchorNode = arSceneView.scene.findByName(anchorName) as AnchorNode?
-                            if (anchorNode != null) {
-                                anchorNode.addChild(node)
-                            } else {
-                                completableFutureSuccess.complete(false)
-                            }
-                        } else {
-                            arSceneView.scene.addChild(node)
-                        }
-                        completableFutureSuccess.complete(true)
-                    }
-                    .exceptionally { throwable ->
-                        // Pass error to session manager (this has to be done on the main thread if this activity)
-                        val mainHandler = Handler(viewContext.mainLooper)
-                        val runnable = Runnable {sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable " +  dict_node["uri"] as String)) }
-                        mainHandler.post(runnable)
-                        completableFutureSuccess.completeExceptionally(throwable)
-                        null // return null because java expects void return (in java, void has no instance, whereas in Kotlin, this closure returns a Unit which has one instance)
-                    }
-                }
-                3 -> { //fileSystemAppFolderGLTF2
-                    // Get path to given Flutter asset
-                    val documentsPath = viewContext.getApplicationInfo().dataDir
-                    val assetPath = documentsPath + "/app_flutter/" + dict_node["uri"] as String
-
-                    // Add object to scene
-                    modelBuilder.makeNodeFromGltf(viewContext, dict_node["name"] as String, assetPath, dict_node["transformation"] as ArrayList<Double>)
-                            .thenAccept{node ->
+                            .thenAccept { node ->
                                 val anchorName: String? = dict_anchor?.get("name") as? String
                                 val anchorType: Int? = dict_anchor?.get("type") as? Int
                                 if (anchorName != null && anchorType != null) {
@@ -625,7 +595,38 @@ internal class AndroidARView(
                             .exceptionally { throwable ->
                                 // Pass error to session manager (this has to be done on the main thread if this activity)
                                 val mainHandler = Handler(viewContext.mainLooper)
-                                val runnable = Runnable {sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" +  dict_node["uri"] as String)) }
+                                val runnable = Runnable { sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable " + dict_node["uri"] as String)) }
+                                mainHandler.post(runnable)
+                                completableFutureSuccess.completeExceptionally(throwable)
+                                null // return null because java expects void return (in java, void has no instance, whereas in Kotlin, this closure returns a Unit which has one instance)
+                            }
+                }
+                3 -> { //fileSystemAppFolderGLTF2
+                    // Get path to given Flutter asset
+                    val documentsPath = viewContext.getApplicationInfo().dataDir
+                    val assetPath = documentsPath + "/app_flutter/" + dict_node["uri"] as String
+
+                    // Add object to scene
+                    modelBuilder.makeNodeFromGltf(viewContext, dict_node["name"] as String, assetPath, dict_node["transformation"] as ArrayList<Double>)
+                            .thenAccept { node ->
+                                val anchorName: String? = dict_anchor?.get("name") as? String
+                                val anchorType: Int? = dict_anchor?.get("type") as? Int
+                                if (anchorName != null && anchorType != null) {
+                                    val anchorNode = arSceneView.scene.findByName(anchorName) as AnchorNode?
+                                    if (anchorNode != null) {
+                                        anchorNode.addChild(node)
+                                    } else {
+                                        completableFutureSuccess.complete(false)
+                                    }
+                                } else {
+                                    arSceneView.scene.addChild(node)
+                                }
+                                completableFutureSuccess.complete(true)
+                            }
+                            .exceptionally { throwable ->
+                                // Pass error to session manager (this has to be done on the main thread if this activity)
+                                val mainHandler = Handler(viewContext.mainLooper)
+                                val runnable = Runnable { sessionManagerChannel.invokeMethod("onError", listOf("Unable to load renderable" + dict_node["uri"] as String)) }
                                 mainHandler.post(runnable)
                                 completableFutureSuccess.completeExceptionally(throwable)
                                 null // return null because java expects void return (in java, void has no instance, whereas in Kotlin, this closure returns a Unit which has one instance)
@@ -655,10 +656,17 @@ internal class AndroidARView(
     private fun onTap(hitTestResult: HitTestResult, motionEvent: MotionEvent?): Boolean {
         val frame = arSceneView.arFrame
 
-        if (hitTestResult.node != null && motionEvent?.action == MotionEvent.ACTION_DOWN) {
+        if (hitTestResult.node != null && motionEvent?.action == MotionEvent.ACTION_MOVE) {
             var allHitResults = frame?.hitTest(motionEvent) ?: listOf<HitResult>()
             var serializedHitResults: ArrayList<HashMap<String, Any>> = ArrayList(allHitResults.map { serializeHitResult(it) })
             objectManagerChannel.invokeMethod("onNodeTap", serializedHitResults)
+            return true
+        }
+        if( motionEvent != null && motionEvent.action === MotionEvent.ACTION_MOVE) {
+            val allHitResults = frame?.hitTest(motionEvent) ?: listOf<HitResult>()
+            val planeAndPointHitResults = allHitResults.filter { ((it.trackable is Plane) || (it.trackable is Point))  }
+            val serializedPlaneAndPointHitResults: ArrayList<HashMap<String, Any>> = ArrayList(planeAndPointHitResults.map { serializeHitResult(it) })
+            sessionManagerChannel.invokeMethod("onPlaneOrPointTap", serializedPlaneAndPointHitResults)
             return true
         }
         if (motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN) {

@@ -98,6 +98,7 @@ class ARObjectManager extends ChangeNotifier{
   Future<bool?> addNode(ARNode node, {ARPlaneAnchor? planeAnchor}) async {
     try {
       node.transformNotifier.addListener(() {
+
         _channel.invokeMethod<void>('transformationChanged', {
           'name': node.name,
           'transformation':

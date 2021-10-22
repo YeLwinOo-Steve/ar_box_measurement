@@ -426,7 +426,6 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
     // }
     // node.transform.setDiagonal(v.Vector4(scale[0] * lengthVal, scale[1] * heightVal, scale[2] * widthVal, 1));
     // this.arObjectManager.updateNode(node);
-
     var hitTest = hits[hits.length-1];
     var p = v.Vector3(
       hitTest.worldTransform.getColumn(3).x,
@@ -434,7 +433,7 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
       hitTest.worldTransform.getColumn(3).z,
     );
     node.position = p;
-    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + p.toString());
+    this.arObjectManager.updateNode(node);
 
     // var hitTest = hits.firstWhere(
     //         (hitTestResult) => hitTestResult.type == ARHitTestResultType.point);
@@ -483,16 +482,24 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
         this.arSessionManager.onError("Adding Anchor failed");
       }
     } else {
-      var hitTest = hitTestResults.lastWhere((hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
-      var p = v.Vector3(
-        hitTest.worldTransform.getColumn(3).x,
-        hitTest.worldTransform.getColumn(3).y,
-        hitTest.worldTransform.getColumn(3).z,
-      );
-
-      node.transform.setTranslation(p);
+      // var last = hitTestResults[hitTestResults.length-1];
+      // var lastX = last.worldTransform.getColumn(3).x;
+      //
+      // var currentX = node.transform.getColumn(3).x;
+      // var diff = lastX.abs() - currentX.abs() ;
+      // var p = v.Vector3(
+      //   hitTest.worldTransform.getColumn(3).x,
+      //   hitTest.worldTransform.getColumn(3).y,
+      //   hitTest.worldTransform.getColumn(3).z,
+      // );
+      node.transform.rotateY(0.05);
+      // node.transform.setTranslation(p);
       this.arObjectManager.updateNode(node);
-      print("<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<" + p.toString());
+      // print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + diff.toString());
+      // for(int i=0;i<hitTestResults.length;i++){
+      //   print("_____________________________"+hitTestResults[i].worldTransform.getColumn(3).x.toString());
+      // }
+
     }
   }
 

@@ -13,9 +13,11 @@ Many thanks to Carius Lars for the [ar_flutter_plugin](https://github.com/Carius
 
 3. Tap anywhere on the screen to place the box
 
-4. Tap anywhere except the box to move
+4. Drag the box to the desired place on the plane
 
-5. Dragging the box doesn't work
+5. Swipe the screen left to right to rotate the box 
+
+6. Only left to right rotation is available
 
 
 ***See the usage in example/lib folder
