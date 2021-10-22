@@ -418,12 +418,23 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
     // anchors = [];
   }
 
-  Future<void> onNodeTapped(List<String> nodes) async {
-    var number = nodes.length;
+  Future<void> onNodeTapped(List<ARHitTestResult> hits) async {
+    // var number = nodes.length;
+    //
+    // for (int i = 0; i < number; i++) {
+    //   print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + nodes[i].toString());
+    // }
+    // node.transform.setDiagonal(v.Vector4(scale[0] * lengthVal, scale[1] * heightVal, scale[2] * widthVal, 1));
+    // this.arObjectManager.updateNode(node);
 
-    for (int i = 0; i < nodes.length; i++) {
-      print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + nodes[i].toString());
-    }
+    var hitTest = hits[hits.length-1];
+    var p = v.Vector3(
+      hitTest.worldTransform.getColumn(3).x,
+      hitTest.worldTransform.getColumn(3).y,
+      hitTest.worldTransform.getColumn(3).z,
+    );
+    node.position = p;
+    print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + p.toString());
 
     // var hitTest = hits.firstWhere(
     //         (hitTestResult) => hitTestResult.type == ARHitTestResultType.point);
@@ -432,7 +443,6 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
     //   singleHitTestResult.worldTransform.getColumn(3).y,
     //   singleHitTestResult.worldTransform.getColumn(3).z,
     // );
-    // print(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + p.toString());
   }
 
   Future<void> onPlaneOrPointTapped(List<ARHitTestResult> hitTestResults) async {
@@ -457,7 +467,7 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
             transformation: singleHitTestResult.worldTransform);
         node.transform.setDiagonal(v.Vector4(scale[0] * lengthVal, scale[1] * heightVal, scale[2] * widthVal, 1));
 
-        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + node.scale.toString());
+        print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@" + node.position.toString());
 
         bool? didAddNodeToAnchor = await this.arObjectManager.addNode(node, planeAnchor: anchor);
         this.arObjectManager.updateNode(node, planeAnchor: anchor);
@@ -473,7 +483,7 @@ class _ObjectsOnPlanesWidgetState extends State<ObjectsOnPlanesWidget> {
         this.arSessionManager.onError("Adding Anchor failed");
       }
     } else {
-      var hitTest = hitTestResults.firstWhere((hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
+      var hitTest = hitTestResults.lastWhere((hitTestResult) => hitTestResult.type == ARHitTestResultType.plane);
       var p = v.Vector3(
         hitTest.worldTransform.getColumn(3).x,
         hitTest.worldTransform.getColumn(3).y,

@@ -162,6 +162,14 @@ internal class AndroidARView(
                     }
                 }
             }
+
+//      fun updatePosition(call: MethodCall, result: MethodChannel.Result) {
+//       val name = call.argument<String>("name")
+//       val node = arSceneView?.scene?.findByName(name)
+//       node?.localPosition = parseVector3(call.arguments as HashMap<String, Any>)
+//       result.success(null)
+//   }
+
     private val onAnchorMethodCall =
             object : MethodChannel.MethodCallHandler {
                 override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
@@ -646,8 +654,11 @@ internal class AndroidARView(
 
     private fun onTap(hitTestResult: HitTestResult, motionEvent: MotionEvent?): Boolean {
         val frame = arSceneView.arFrame
+
         if (hitTestResult.node != null && motionEvent?.action == MotionEvent.ACTION_DOWN) {
-            objectManagerChannel.invokeMethod("onNodeTap", listOf(hitTestResult.node?.name))
+            var allHitResults = frame?.hitTest(motionEvent) ?: listOf<HitResult>()
+            var serializedHitResults: ArrayList<HashMap<String, Any>> = ArrayList(allHitResults.map { serializeHitResult(it) })
+            objectManagerChannel.invokeMethod("onNodeTap", serializedHitResults)
             return true
         }
         if (motionEvent != null && motionEvent.action == MotionEvent.ACTION_DOWN) {

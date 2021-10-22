@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 
 // Type definitions to enforce a consistent use of the API
-typedef NodeTapResultHandler = void Function(List<String> nodes);
+typedef NodeTapResultHandler = void Function(List<ARHitTestResult> hit);
 
 typedef AnchorEventHandler = void Function(ARPlaneAnchor anchor);
 
@@ -45,20 +45,22 @@ class ARObjectManager extends ChangeNotifier{
           break;
         case 'onNodeTap':
           if (onNodeTap != null) {
-            final tappedNodes = call.arguments as List<dynamic>;
-            onNodeTap!(tappedNodes
-                .map((tappedNode) => tappedNode.toString())
-                .toList());
+            // final tappedNodes = call.arguments as List<dynamic>;
+            // onNodeTap!(tappedNodes
+            //     .map((tappedNode) => tappedNode.toString())
+            //     .toList());
 
-            // final rawHitTestResults = call.arguments as List<dynamic>;
-            // final serializedHitTestResults = rawHitTestResults
-            //     .map(
-            //         (hitTestResult) => Map<String, dynamic>.from(hitTestResult))
-            //     .toList();
-            // final hitTestResults = serializedHitTestResults.map((e) {
-            //   return ARHitTestResult.fromJson(e);
-            // }).toList();
-            // onNodeTap!(hitTestResults);
+            final rawHitTestResults = call.arguments as List<dynamic>;
+            final serializedHitTestResults = rawHitTestResults
+                .map(
+                    (hitTestResult) => Map<String, dynamic>.from(hitTestResult))
+                .toList();
+            final hitTestResults = serializedHitTestResults.map((e) {
+              return ARHitTestResult.fromJson(e);
+            }).toList();
+            onNodeTap!(hitTestResults);
+            break;
+
           }
           break;
         case 'onUpdateNodeForAnchor':
